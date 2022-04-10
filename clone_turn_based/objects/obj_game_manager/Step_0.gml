@@ -15,7 +15,7 @@ switch(global.current_state){
 		progress = false;
 
 		//clearing
-		copied = false;
+		removal_position = 0;
 	
 		if(!change_state){
 			alarm[0] = room_speed
@@ -157,38 +157,48 @@ switch(global.current_state){
 	break;
 	
 	case states.clearing:
+	
+	delay++;
 		
-		if(!copied){
-			for(var i = 0; i < 6; i++)
-			{
-					var transition_deck =  ds_list_find_value(global.deck, i + increment);
-					transition_deck.faceup = false;
-					transition_deck.target_x = room_width*0.9;
-					transition_deck.target_y = room_height*0.35 + (15*(i + increment));
-			}	
-			
-			 increment += 6;
-			 copied = true;
-			 
-		}
-		else
+		if(delay > 20 && removal_position < 6){ //Removing Cards
+				var transition_deck =  ds_list_find_value(global.deck, removal_position + increment);
+				transition_deck.faceup = false;
+				transition_deck.target_x = room_width*0.9;
+				transition_deck.target_y = room_height*0.35 + (15*(removal_position + increment));
+				removal_position++;
+				number_in_discard++;
+				delay = 0;
+		} else if (delay > 30)
 		{
 			if(!change_state){
-				alarm[0] = room_speed*1.5
+				increment += 6;
+				alarm[0] = room_speed
 				change_state = true;
-			}	
+			}
 		}
 	
 	break;
 	
 	case states.restocking:
-	
+		
+		if(number_in_discard == 24)
+		{
+			for(var i = 0; i < number_in_discard; i++){
+				var newcard = ds_list_find_value(global.deck, i);
+				newcard.target_x = 100;
+				newcard.target_y = room_height*0.35 + (15*i);
+			}	
+			ds_list_shuffle(global.deck);
+			increment = 0;
+			number_in_discard = 0
+		}
+		else
+		{
 		global.current_state = states.shuffling;
+		}
 	
 	break;
 }
 
 
-if(keyboard_check_released(vk_space)){
-	show_debug_message(global.current_state);
-}
+	show_debug_message(number_in_discard);

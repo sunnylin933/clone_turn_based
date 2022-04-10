@@ -32,6 +32,7 @@ player_score = 0;
 ai_score = 0;
 
 //clearing
-copied = false;
+removal_position = 0;
+number_in_discard = 0;
 
 change_state = false;
