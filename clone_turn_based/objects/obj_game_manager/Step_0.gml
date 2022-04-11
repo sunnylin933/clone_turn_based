@@ -183,18 +183,25 @@ switch(global.current_state){
 		
 		if(number_in_discard == 24)
 		{
+			ds_list_shuffle(global.deck);
+			
 			for(var i = 0; i < number_in_discard; i++){
 				var newcard = ds_list_find_value(global.deck, i);
 				newcard.target_x = 100;
 				newcard.target_y = room_height*0.35 + (15*i);
 			}	
-			ds_list_shuffle(global.deck);
+			
 			increment = 0;
 			number_in_discard = 0
 		}
 		else
 		{
-		global.current_state = states.shuffling;
+			global.current_state = states.shuffling;
+			for(var i = 0; i < number_in_discard; i++)
+			{
+				var newcard = ds_list_find_value(global.deck, i);
+				ds_list_set(global.deck, i, newcard);
+			}
 		}
 	
 	break;

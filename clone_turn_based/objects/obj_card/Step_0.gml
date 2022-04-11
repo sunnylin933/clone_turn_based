@@ -23,3 +23,5 @@ else
 {
 	y = lerp(y,target_y - 25, 0.1);
 }
+
+depth = -(room_height - target_y);
