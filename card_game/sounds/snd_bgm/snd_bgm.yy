@@ -12,7 +12,7 @@
     "path": "audiogroups/audiogroup_default",
   },
   "soundFile": "snd_bgm.wav",
-  "duration": 0.0,
+  "duration": 121.513626,
   "parent": {
     "name": "Sounds",
     "path": "folders/Sounds.yy",
