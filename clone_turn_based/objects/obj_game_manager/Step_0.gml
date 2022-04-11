@@ -16,6 +16,8 @@ switch(global.current_state){
 
 		//clearing
 		removal_position = 0;
+		
+		audio_play_sound(snd_dealing, 0, 0);
 	
 		if(!change_state){
 			alarm[0] = room_speed
