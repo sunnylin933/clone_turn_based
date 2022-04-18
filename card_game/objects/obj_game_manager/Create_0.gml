@@ -15,6 +15,7 @@ enum states
 }
 
 global.current_state = states.shuffling
+global.swapped_type_initial = spr_scissor;
 
 
 //dealing
@@ -24,6 +25,10 @@ deck_position = 0;
 //choosing
 ai_choice = 0;
 ai_chose = false;
+swap_power = 3;
+swapping_spawned = false;
+swapping_card =  false;
+choosing_type = false;
 player_chose = false;
 
 //responding

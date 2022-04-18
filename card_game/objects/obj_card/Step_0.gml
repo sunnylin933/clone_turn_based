@@ -1,7 +1,7 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-if(global.current_state == states.choosing && in_hand){
+if(global.current_state == states.choosing && in_hand && !obj_game_manager.swapping_card){
 	
 	if(!flipped){
 		faceup = true;
@@ -24,7 +24,24 @@ if(global.current_state == states.choosing && in_hand){
 		hovered = false;
 		audio = false;
 	}
-} else 
+} else if(global.current_state == states.choosing && in_hand && obj_game_manager.swapping_card && !obj_game_manager.choosing_type)
+{
+	if(position_meeting(mouse_x, mouse_y, self)){
+		hovered = true;
+		if(!audio)
+		{
+			audio_play_sound(snd_hover_card, 0, 0);
+			audio = true;
+		}
+	}
+	else
+	{
+		audio = false;
+		hovered = false;
+		flipped = false;
+	}
+}
+else
 {
 	hovered = false;
 	flipped = false;
@@ -40,4 +57,12 @@ else
 	y = lerp(y,target_y - 25, 0.1);
 }
 
+
+if(!obj_game_manager.swapping_card)
+{
 depth = -(room_height - target_y);
+}
+else if(in_hand)
+{
+	depth = obj_darken.depth - 1;
+}

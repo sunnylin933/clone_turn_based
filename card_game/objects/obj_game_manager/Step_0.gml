@@ -10,6 +10,9 @@ switch(global.current_state){
 		//choosing
 		ai_chose = false;
 		player_chose = false;
+		swapping_spawned = false;
+		swapping_card =  false;
+		choosing_type = false;
 
 		//responding
 		flip_delay = 0;
@@ -34,14 +37,14 @@ switch(global.current_state){
 			if(deck_position < 3)
 			{
 				var opponent_card = ds_list_find_value(global.deck, deck_position + increment);
-				opponent_card.target_x = 350 + (150*deck_position);
-				opponent_card.target_y = 150;
+				opponent_card.target_x = 255 + (135*deck_position);
+				opponent_card.target_y = 125;
 			} 
 			else if(2 < deck_position < 6)
 			{
 				var player_card = ds_list_find_value(global.deck, deck_position + increment);
-				player_card.target_x = 350 + (150*(deck_position-3));
-				player_card.target_y = 825;
+				player_card.target_x = 255 + (135*(deck_position-3));
+				player_card.target_y = 650;
 				player_card.in_hand = true;
 			} else if(!change_state)
 			{
@@ -67,12 +70,19 @@ switch(global.current_state){
 		if(!ai_chose && flip_delay > room_speed){
 			ai_choice = choose(0, 1, 2);
 			global.ai_selected_card = ds_list_find_value(global.deck, ai_choice + increment);
-			global.ai_selected_card.target_y = 365;
+			global.ai_selected_card.target_y = 275;
 			audio_play_sound(snd_move_card, 0, 0);
 			ai_chose = true;
 		}
-		
-		if(!player_chose && ai_chose && flip_delay > room_speed){
+	
+		if(keyboard_check_released(vk_space) && swap_power > 0 && ai_chose && !swapping_card)
+		{
+			swapping_card = true;
+			audio_play_sound(snd_move_card, 0, 0);
+			swap_power--;
+		}
+	
+		if(!player_chose && ai_chose && flip_delay > room_speed && !swapping_card){
 			global.selected_card = instance_position(mouse_x, mouse_y, obj_card);
 			if(mouse_check_button(mb_left) && global.selected_card != noone && global.selected_card.in_hand){
 				if(obj_card.y < room_height/2)
@@ -81,8 +91,42 @@ switch(global.current_state){
 				}
 				
 				audio_play_sound(snd_move_card, 0, 0);
-				global.selected_card.target_y = 600;
+				global.selected_card.target_y = 500;
 				player_chose = true;
+			}
+		} else if (swapping_card && !choosing_type)
+		{
+			
+			global.swapped_card = instance_position(mouse_x, mouse_y, obj_card);
+			if(mouse_check_button(mb_left) && global.swapped_card != noone && global.swapped_card.in_hand)
+			{
+				global.swapped_type_initial = global.swapped_card.face_index;
+				global.swapped_card.target_y = 600;
+				audio_play_sound(snd_move_card, 0, 0);
+				choosing_type = true;		
+			}
+		} else if(swapping_card && choosing_type)
+		{
+			if(!swapping_spawned)
+			{
+				for(var i = 0; i < 3; i++)
+				{
+				var swapping_new_card = instance_create_depth(room_width * 0.325 + (i*135), -100, -2000, obj_swapping_cards)
+				swapping_new_card.target_x = room_width*0.325 + (i*135);
+				swapping_new_card.target_y = 300;
+				
+				}
+				swapping_spawned = true;
+			} 
+			else
+			{
+				var type_swap_to = instance_position(mouse_x, mouse_y, obj_swapping_cards);
+				if(mouse_check_button(mb_left) && type_swap_to != noone){
+					global.swapped_card.face_index = type_swap_to.face_index;
+					global.swapped_card.target_y = 650;
+					swapping_card = false;
+					choosing_type = false;
+				}
 			}
 		}
 		
@@ -171,19 +215,25 @@ switch(global.current_state){
 	case states.clearing:
 	
 	delay++;
+	
 		
 		if(delay > 20 && removal_position < 6){ //Removing Cards
 				audio_play_sound(snd_clearing, 0, 0);
 				var transition_deck =  ds_list_find_value(global.deck, removal_position + increment);
 				transition_deck.faceup = false;
 				transition_deck.target_x = room_width*0.9;
-				transition_deck.target_y = room_height*0.35 + (15*(removal_position + increment));
+				transition_deck.target_y = room_height*0.4 + (10*(removal_position + increment));
 				transition_deck.in_hand = false;
 				removal_position++;
 				number_in_discard++;
 				delay = 0;
 		} else if (delay > 30)
 		{
+			if(swapping_spawned)
+			{
+				global.swapped_card.face_index = global.swapped_type_initial;
+			}
+			
 			if(!change_state){
 				increment += 6;
 				alarm[0] = room_speed
@@ -199,11 +249,12 @@ switch(global.current_state){
 		{
 			ds_list_shuffle(global.deck);
 			audio_play_sound(snd_shuffle, 0, 0);
+			swap_power++;
 			
 			for(var i = 0; i < number_in_discard; i++){
 				var newcard = ds_list_find_value(global.deck, i);
-				newcard.target_x = 100;
-				newcard.target_y = room_height*0.35 + (15*i);
+				newcard.target_x = room_height*0.1;
+				newcard.target_y = room_height*0.4 + (10*i);
 			}	
 			
 			increment = 0;
@@ -223,4 +274,4 @@ switch(global.current_state){
 }
 
 
-	show_debug_message(number_in_discard);
+	show_debug_message(global.swapped_type_initial);

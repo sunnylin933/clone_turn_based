@@ -5,7 +5,7 @@ deck_size = 24;
 global.deck = ds_list_create();
 card_type = ds_list_create();
 
-for(i = 0; i < deck_size; i++){
+for(var i = 0; i < deck_size; i++){
 	if(i < deck_size/3)
 	{
 		add_type = spr_paper;
@@ -21,7 +21,7 @@ for(i = 0; i < deck_size; i++){
 	ds_list_add(card_type, add_type);
 }
 
-for(i = 0; i < deck_size; i++)
+for(var i = 0; i < deck_size; i++)
 {
 	var newcard = instance_create_layer(0, 0, "Instances", obj_card);
 	
@@ -31,7 +31,7 @@ for(i = 0; i < deck_size; i++)
 	ds_list_delete(card_type, random_selection);
 	
 	newcard.faceup = false;
-	newcard.target_x = 100;
-	newcard.target_y = room_height*0.35 + (15*i);
+	newcard.target_x = room_height*0.1;
+	newcard.target_y = room_height*0.4 + (10*i);
 	ds_list_add(global.deck, newcard);
 }
